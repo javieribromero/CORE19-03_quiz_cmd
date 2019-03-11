@@ -1,7 +1,7 @@
 {
-  "name": "quiz",
+  "name": "CORE19-03_quiz_cmd",
   "version": "1.0.0",
-  "description": "Practica Quiz",
+  "description": "CORE19-03_quiz_cmd",
   "main": "main.js",
   "scripts": {
     "start": "node main.js",
