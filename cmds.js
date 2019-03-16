@@ -5,6 +5,7 @@ const {log, biglog, errorlog, colorize} = require("./out");
 const model = require('./model');
 
 
+
 /**
  * Muestra la ayuda.
  *
@@ -151,9 +152,27 @@ exports.editCmd = (rl, id) => {
  * @param id Clave del quiz a probar.
  */
 exports.testCmd = (rl, id) => {
-    log('Probar el quiz indicado.', 'red');
-    rl.prompt();
+    if (typeof id === "undefined") {
+        errorlog(`Falta el parámetro id.`);
+        rl.prompt();
+    } else {
+        try {
+            const quiz = model.getByIndex(id);
+            rl.question(`${colorize(quiz.question + "?","magenta")} : `,answer=>{
+                if((answer || "").toLowerCase().trim() === quiz.answer.toLowerCase()){
+                    biglog("CORRECTO","green");
+                }else{
+                    biglog("INCORRECTO","red");
+                }
+                rl.prompt();
+            });
+        } catch (error) {
+            errorlog(error.message);
+            rl.prompt();
+        }
+    }
 };
+
 
 
 /**
@@ -163,10 +182,51 @@ exports.testCmd = (rl, id) => {
  * @param rl Objeto readline usado para implementar el CLI.
  */
 exports.playCmd = rl => {
-    log('Jugar.', 'red');
-    rl.prompt();
-};
+    let score = 0;
+    let toBeResolved = [];
+    let i = 0;
+    for(i;i<model.count();i++){
+        //Metemos los id's a preguntar en el array
+        toBeResolved[i] = i;
+    } //log(`${toBeResolved}`)
 
+    const playOne = () =>{
+        if(toBeResolved.length===0){
+            log("Enhorabuena, has terminado el juego\n","green");
+            log(`Número de aciertos: `);
+            biglog(score,"magenta");
+            rl.prompt();
+        }else{
+            try {
+                let id = Math.round(Math.random()*(model.count()-1));
+                if (toBeResolved.includes(id)){
+                    toBeResolved.splice(toBeResolved.indexOf(id),1);
+                    let quiz = model.getByIndex(id);
+                    rl.question(`${colorize(quiz.question + "?","magenta")} : `, answer => {
+                        if((answer || "").toLowerCase().trim() === quiz.answer.toLowerCase()){
+                            log("CORRECTO","green");
+                            log(`Número de aciertos: ${++score}`);
+                            playOne();
+                        }else{
+                            log("INCORRECTO","red");
+                            log("Fin del juego. Número de aciertos: ");
+                            biglog(score,"red");
+                        }
+                        rl.prompt();
+                    });
+                }else{
+                    playOne();
+                }
+            } catch (error) {
+                rl.prompt();
+            }
+        }
+
+
+    }
+    playOne();
+
+};
 
 /**
  * Muestra los nombres de los autores de la práctica.
@@ -175,8 +235,8 @@ exports.playCmd = rl => {
  */
 exports.creditsCmd = rl => {
     log('Autores de la práctica:');
-    log('Nombre 1', 'green');
-    log('Nombre 2', 'green');
+    log('JAVIER IBAÑEZ ROMERO', 'yellow');
+    log('COMPUTACIÓN EN RED', 'yellow');
     rl.prompt();
 };
 

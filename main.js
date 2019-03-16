@@ -23,8 +23,7 @@ const rl = readline.createInterface({
 
 rl.prompt();
 
-rl
-.on('line', (line) => {
+rl.on('line', (line) => {
 
     let args = line.split(" ");
     let cmd = args[0].toLowerCase().trim();
@@ -83,8 +82,7 @@ rl
             rl.prompt();
             break;
     }
-})
-.on('close', () => {
+}).on('close', () => {
     log('Adios!');
     process.exit(0);
 });
